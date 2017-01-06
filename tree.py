@@ -2,6 +2,7 @@
 
 from math import log
 import operator
+import pickle
 
 '''
       不浮出水面是否可以生存                是否有脚撲             属于鱼类
@@ -102,3 +103,26 @@ def createTree(dataSet, labels):
         subLabels = labels[:]
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value), subLabels)
     return myTree
+
+def classify(inputTree, featLabels, testVec):
+    firstStr = inputTree.keys()[0]
+    secondDict = inputTree[firstStr]
+    featIndex = featLabels.index(firstStr)
+    for key in secondDict.keys():
+        if testVec[featIndex] == key:
+            if type(secondDict[key]).__name__ == "dict":
+                classLabel = classify(secondDict[key], featLabels, testVec)
+            else:
+                classLabel = secondDict[key]
+    return classLabel
+
+def storeTree(inputTree, filename):
+    fw = open(filename, "w")
+    pickle.dump(inputTree, fw)
+    fw.close()
+    
+def grabTree(filename):
+    fr = open(filename)
+    tree = pickle.load(fr)
+    fr.close()
+    return tree
